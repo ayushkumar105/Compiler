@@ -1,6 +1,7 @@
-import <stdlib.h>
-import <stdio.h>
-import "infToPstf.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include "infToPstf.h"
+#include <stdbool.h>
 
 /*
 ***********************************
@@ -13,15 +14,15 @@ int isOperator(char c);
 
 int precedence(char operator1, char operator2);
 
-void newStack();
+Stack_t* newStack();
 
-bool push(StackNodePtr *topPtr, char value);
+bool push(Stack_t *s, char value);
 
-char pop(StackNodePtr *topPtr);
+char pop(Stack_t *s);
 
-char stackTop(StackNodePtr topPtr);
+char stackTop(Stack_t *s);
 
-int isEmpty(StackNodePtr topPtr);
+int isEmpty(Stack_t *s);
 
 void printStack(StackNodePtr topPtr);
 
@@ -34,62 +35,65 @@ int calculate(int op1, int op2, char operator);
 * Function Implementations
 *************************************
 */
-void newStack()
+Stack_t* newStack()
 {
-	StackNode *s = malloc(sizeof(StackNode));
+	Stack_t *s = malloc(sizeof(Stack_t));
 	if (s == NULL)
 	{
 		return NULL;
 	}
-	s->data = '';
+	s->top = NULL;
 	s->size = 0;
-	s->nextPtr = NULL;
 	return s;
 }
 
-bool push(StackNodePtr *topPtr, char value)
+bool push(Stack_t *s, char value)
 {
-	if (topPtr == NULL)
+	if (s == NULL)
 	{
 		return false;
 	}
-	StackNodePtr *newTop = malloc(sizeof(StackNode));
+	StackNodePtr newTop = malloc(sizeof(StackNode));
 	if (newTop == NULL)
 	{
 		return false;
 	}
 	newTop->data = value;
-	newTop->nextPtr = topPtr;
-	topPtr = newTop;
+	newTop->nextPtr = s->top;
+	s->top = newTop;
+	s->size += 1;
 	return true;
 }
 
-char pop(StackNodePtr *topPtr)
+char pop(Stack_t *s)
 {
-	if (topPtr == NULL)
+	if (s == NULL)
 	{
-		return '';
+		return '\0';
 	}
-	char value = topPtr->data;
-	StackNode *p;
-	p = topPtr;
-	topPtr = topPtr->nextPtr;
-	free(p);
-	return value;
+	StackNodePtr oldTop;
+	oldTop = s->top;
+	s->top = s->top->nextPtr;
+	s->size -= 1;
+	char val = oldTop->data;
+	free(oldTop);
+	return val;
 }
 
-char stackTop(StackNodePtr topPtr)
+char stackTop(Stack_t *s)
 {
-	if (topPtr == NULL)
+	if (s == NULL)
 	{
-		return '';
+		return '\0';
 	}
-	return topPtr->data;
+	StackNodePtr t;
+	t = s->top;
+	return t->data;
 }
 
-int isEmpty(StackNodePtr topPtr)
+int isEmpty(Stack_t* s)
 {
-	if (topPtr->size == 0)
+	if (s->size == 0)
 	{
 		return 1;
 	}
@@ -99,8 +103,16 @@ int isEmpty(StackNodePtr topPtr)
 void printStack(StackNodePtr topPtr)
 {
 	StackNode *current_node = topPtr;
+	printf("%c ", '[');
    	while ( current_node != NULL) {
-        printf("%d ", current_node->data);
+        printf("%c ", current_node->data);
         current_node = current_node->nextPtr;
     }
+	printf("%c", ']');
+	printf("\n");
+}
+int main(int argc, char** argv)
+{
+	
+	return 0;
 }
