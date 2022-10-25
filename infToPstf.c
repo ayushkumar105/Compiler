@@ -217,7 +217,7 @@ void infixToPostfix(char infix_exp[], char postfix_exp[])
 		}
 		else if( isdigit(item) || isalpha(item))
 		{
-			postfix_exp[j] = item;              /
+			postfix_exp[j] = item;              
 			j++;
 		}
 		else if(isOperator(item) == 1)       
@@ -261,6 +261,38 @@ void infixToPostfix(char infix_exp[], char postfix_exp[])
 
 }
 
+int evaluatePostfixExpression(char *expr)
+{
+    Stack_t *stack = newStack();
+    
+ 
+    // See if stack was created successfully
+    if (!stack) return -1;
+ 
+    // Scan all characters one by one
+    for (int i = 0; i < strlen(expr); ++i)
+    {
+        // If the read character is an operand (number here), push it to the stack.
+        if (isdigit(expr[i]))
+        {
+            push(stack, expr[i] - '0');
+        }
+        // If the read character is an operator, pop two elements from stack apply the operator
+        else
+        {
+            int val1 = pop(stack);
+            int val2 = pop(stack);
+            switch (expr[i])
+            {
+            case '+': push(stack, val2 + val1); break;
+            case '-': push(stack, val2 - val1); break;
+            case '*': push(stack, val2 * val1); break;
+            case '/': push(stack, val2/val1); break;
+            }
+        }
+    }
+    return pop(stack);
+}
 
 int main(int argc, char** argv)
 {
@@ -271,6 +303,8 @@ int main(int argc, char** argv)
 	{
 		printf("%c ", post[i]);
 	}
+	printf("\n");
+    printf("Result: %d", evaluatePostfixExpression(post));
 	printf("\n");
 	return 0;
 }
