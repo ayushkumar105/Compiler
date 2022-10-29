@@ -1,9 +1,45 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "infToPstf.h"
+#include "peep.h"
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+
+#define ADD     0x10    // Add a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
+#define SUB     0x11    // Subtract a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
+#define MUL     0x12    // Multiple a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
+#define DIV     0x13    // Divide a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
+#define MOD     0x14    // Compute the integer remainder when dividing a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
+
+// ACC-MEM Logical Instructions
+#define AND     0x20    // Compute the binary AND of a specific memory location and the accumulator (leave the result in the accumulator)
+#define ORR     0x21    // Compute the binary OR of a specific memory location and the accumulator (leave the result in the accumulator)
+#define NOT     0x22    // Compute the logical NOT of the accumulator (leave the result in the accumulator)
+#define XOR     0x23    // Compute the binary XOR of a specific memory location and the accumulator (leave the result in the accumulator)
+#define LSR     0x24    // Compute the binary logical shift right (1-bit) of the accumulator (leave the result in the accumulator)
+#define ASR     0x25    // Compute the binary arithmetic shift right (1-bit) of the accumulator (leave the result in the accumulator)
+#define LSL     0x26    // Compute the binary logical shift left of the accumulator (leave the result in the accumulator)
+
+// Branch Instructions
+#define B       0X30    // Branch to a specific location in memory
+#define BNEG    0X31    // Branch to a specific location in memory if the accumulator is negative
+#define BPOS    0X32    // Branch to a specific location in memory if the accumulator is positive
+#define BZRO    0X33    // Branch to a specific location in memory if the accumulator is zero
+
+// ACC-MEM Load/Store Instructions
+#define LOAD    0X40    // Load a word from a specific location in memory into the accumulator
+#define STOR    0X41    // Store a word from the accumulator into a specific memory location
+
+// I/O (Standard) Instructions
+#define READ    0X50    // Read a word from the terminal into a specific location in memory
+#define WRTE    0X51    // Write a word from a specific location in memory to the terminal
+
+// HALT Instruction
+#define HALT    0XFF    // Halt, i.e. the program has completed its task
+
+const int MEMSIZE = 256;
+
 
 /*
 ***********************************
@@ -261,7 +297,7 @@ void infixToPostfix(char infix_exp[], char postfix_exp[])
 
 }
 
-int evaluatePostfixExpression(char *expr)
+int evaluatePostfixExpression(PeepCompiler *compiler, char *expr)
 {
     Stack_t *stack = newStack();
     
@@ -275,22 +311,63 @@ int evaluatePostfixExpression(char *expr)
         // If the read character is an operand (number here), push it to the stack.
         if (isdigit(expr[i]))
         {
-            push(stack, expr[i] - '0');
+			compiler->hml[compiler->datacount] = expr[i];
+            push(stack, compiler->datacount--);
         }
+		// If the read character is a variabe, then push its location to the stack.
+		else if (isalpha(expr[i]))
+		{
+			if(lookUpSymbol(expr[i], compiler->symTab))
+			{
+				TableEntry a = getSymbol(expr[i], compiler->symTab);
+				push(stack, a.location);
+			}
+			else
+			{
+				fprintf(stderr, "%s", "Undeclared variable!\n");
+			}
+		} 
         // If the read character is an operator, pop two elements from stack apply the operator
         else
         {
+			if (i < 2)
+			{
+				fprintf(stderr, "%s", "Invalid expression!\n");
+			}
+			
             int val1 = pop(stack);
             int val2 = pop(stack);
+
+			compiler->hml[compiler->inscount++] = LOAD * MEMSIZE + val1;
+
+
             switch (expr[i])
             {
-            case '+': push(stack, val2 + val1); break;
-            case '-': push(stack, val2 - val1); break;
-            case '*': push(stack, val2 * val1); break;
-            case '/': push(stack, val2/val1); break;
+            case '+': 
+				compiler->hml[compiler->inscount++] = ADD * MEMSIZE + val2; 
+				break;
+            case '-': 
+				compiler->hml[compiler->inscount++] = SUB * MEMSIZE + val2; 
+				break;
+            case '*': 
+				compiler->hml[compiler->inscount++] = MUL * MEMSIZE + val2;
+				break;
+            case '/': 
+				compiler->hml[compiler->inscount++] = DIV * MEMSIZE + val2;
+				break;
+			default:
+				break;
             }
+			compiler->hml[compiler->inscount++] = STOR * MEMSIZE + compiler->datacount;
+			push(stack, compiler->datacount--);
         }
     }
+
+	if(stack->size != 1)
+	{
+        fprintf(stderr, "%s", "Invalid expression!\n");
+	}
+
     return pop(stack);
 }
 

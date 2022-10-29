@@ -45,9 +45,8 @@ const int MEMSIZE = 256;
 /*
 *Method declarations
 */
+
 bool insertIntoSym(TableEntry *table, TableEntry symbol);
-bool lookUpSymbol(int symbol, TableEntry *table);
-TableEntry getSymbol(int symbol, TableEntry *table);
 void printSymTab(TableEntry* tab, int size);
 int* ifConverter(char *inst);
 int* letConverter(char *inst);
@@ -59,6 +58,7 @@ int* inputConverter(PeepCompiler *comp, int var);
 /*
 *Method Implementations
 */
+
 bool lookUpSymbol(int symbol, TableEntry *table)
 {
     for(int i = 0; i<MEMSIZE; ++i)
@@ -104,7 +104,7 @@ int* gotoConverter(PeepCompiler *compiler, int lineNumer)
         compiler->flag[compiler->inscount] = lineNumer;
         result[0] = B * MEMSIZE + 0;
     }
-    ++compiler->inscount;
+    compiler->hml[compiler->inscount++] = result[0];
     return result;
 }
 
@@ -121,7 +121,7 @@ int* inputConverter(PeepCompiler *compiler, int var)
         
         char type;
         unsigned short int loc = 255 - compiler->datacount;
-        if (var >= 97 && var <= 122)
+        if (isalpha(var))
         {
             type = 'V';
         }
@@ -135,18 +135,15 @@ int* inputConverter(PeepCompiler *compiler, int var)
         symbol.location = loc;
         symbol.symbol = var;
         symbol.type = type;
-        compiler->symTab[compiler->inscount + 1] = symbol; 
+
+        compiler->hml[compiler->datacount--] = var;
+        compiler->symTab[compiler->symSize++] = symbol; 
     }
-    if(MEMSIZE < compiler->datacount)
-    {
-        fprintf(stderr, "%s", "Memory limit for HML reached!\n");
-        return 0;
-    }
+    compiler->hml[compiler->inscount++] = READ * MEMSIZE + symbol.location; //add hml instr to the hml memory
     result[0] =  READ * MEMSIZE + symbol.location; // add hml instruction to the result array 
-    ++compiler->inscount; // increment the instructions count
-    ++compiler->datacount; // increment the data count
     return result;
 }
+
 
 int main(int argc, char *argv[]){
     FILE *fp;
