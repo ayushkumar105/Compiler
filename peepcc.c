@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include "testi2p.h"
 #include "peepcc.h"
 
 #define ADD     0x10    // Add a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
@@ -651,11 +652,22 @@ void  firstPass(PeepCompiler *compiler, char *fileName)
 //     writeToFile(&compiler, "test.peep");
 //     return(0);
 // }
-int main()
+int main(int argc, char *argv[])
 {
-	PeepCompiler comp;
+    PeepCompiler compiler;
+    initCompiler(&compiler);
+    char infix[50] = "( 6 + 2 ) * 5 - 8 / 4 \0";
+    char postfix[50];
+    infixToPostfix(infix, postfix);
+    printf("Infix given: %s \n", infix);
+    printf("Postfix: %s \n", postfix);
+    int result = evaluatePostfixExpression(&compiler, postfix);
+    printf("Evaluates to the address: %04xH", result);
+    PeepCompiler comp;
     initCompiler(&comp);
-    comp.file = "ex1.peep";
+	char *filename;
+	filename = argv[1];
+    comp.file = filename;
     firstPass(&comp, comp.file);
     secondPass(&comp);
     writeToFile(&comp, "test.hml");

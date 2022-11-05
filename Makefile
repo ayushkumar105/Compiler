@@ -16,9 +16,11 @@ peepcc.o : peepcc.c peepcc.h infToPstf.h
 infToPstf.o : infToPstf.c infToPstf.h peepcc.h
 	$(CC) $(CFLAGS) -c infToPstf.c
 
-test-i2p:
-	$(CC) $(CFLAGS) -c testi2p.c
+test-i2p: testi2p.o infToPstf.o peepcc.o
+	$(CC) $(CFLAGS) -o testi2p testi2p.o infToPstf.o peepcc.o
 
+testi2p.o : testi2p.c peepcc.h infToPstf.h
+	$(CC) $(CFLAGS) -c testi2p.c
 
 clean:
 	rm -f *.o *~peepcc

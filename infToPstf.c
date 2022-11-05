@@ -350,7 +350,7 @@ int evaluatePostfixExpression(struct pCompiler *compiler, char *expr)
 				entry.type = 'C';
 				compiler->symTab[compiler->symSize++] = entry;
             	compiler->hml[compiler->datacount--] = atoi(token);
-				printf("%d \n", entry.location);
+				
 			}
 			
 			push(stack, entry.location);

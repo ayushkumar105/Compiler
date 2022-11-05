@@ -3,15 +3,13 @@
 
 void test()
 {
-    PeepCompiler comp;
-    initCompiler(&comp);
-    comp.file = "myFile.peep";
-    firstPass(&comp, comp.file);
-    secondPass(&comp);
-    writeToFile(&comp, "test.hml");
-    printf("The HML instructions have been written to a file called test.hml \n");
-    printf("Below is the HML memory layout!");
-    printMem(comp.hml);
-    printf("Below is the symbol table created during compilation!\n");
-    printSymTab(comp.symTab, comp.symSize);
+    PeepCompiler compiler;
+    initCompiler(&compiler);
+    char infix[50] = "( 6 + 2 ) * 5 - 8 / 4 \0";
+    char postfix[50];
+    infixToPostfix(infix, postfix);
+    printf("Infix given: %s \n", infix);
+    printf("Postfix: %s \n", postfix);
+    int result = evaluatePostfixExpression(&compiler, postfix);
+    printf("Evaluates to the address: %04xH", result);
 }
