@@ -2,13 +2,25 @@
 # Makefile for peep compiler
 #######
 
+CC = gcc
+CFLAGS = -O0 -g -Wall -Werror
+
 all: peepcc test-i2p
 
-peepcc:
-	echo "This is the peepcc target"
+peepcc: peepcc.o infToPstf.o
+	$(CC) $(CFLAGS) -o peepcc peepcc.o infToPstf.o
+
+peepcc.o : peepcc.c peepcc.h infToPstf.h
+	$(CC) $(CFLAGS) -c peepcc.c
+
+infToPstf.o : infToPstf.c infToPstf.h peepcc.h
+	$(CC) $(CFLAGS) -c infToPstf.c
 
 test-i2p:
-	echo "This is the test-i2p target"
+	$(CC) $(CFLAGS) -c testi2p.c
+
 
 clean:
-	echo "This is the clean target"
+	rm -f *.o *~peepcc
+	rm -rf *.dSYM
+	(cd traces; rm -f *~)

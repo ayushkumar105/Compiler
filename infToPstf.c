@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "infToPstf.h"
-#include "peep.h"
+#include "peepcc.h"
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
@@ -38,7 +38,6 @@
 // HALT Instruction
 #define HALT    0XFF    // Halt, i.e. the program has completed its task
 
-const int MEMSIZE = 256;
 
 
 /*
@@ -46,27 +45,7 @@ const int MEMSIZE = 256;
 * Function declarations
 ***********************************
 */
-void convertToPostfix(char infix[], char postfix[]);
 
-int isOperator(char c);
-
-int precedence(char operator1, char operator2);
-
-Stack_t* newStack();
-
-bool push(Stack_t *s, char value);
-
-char pop(Stack_t *s);
-
-char stackTop(Stack_t *s);
-
-int isEmpty(Stack_t *s);
-
-void printStack(StackNodePtr topPtr);
-
-int evaluatePostfixExpression(char *expr);
-
-int calculate(int op1, int op2, char operator);
 
 /*
 *************************************
@@ -85,7 +64,7 @@ Stack_t* newStack()
 	return s;
 }
 
-bool push(Stack_t *s, char value)
+bool push(Stack_t *s, int value)
 {
 	if (s == NULL)
 	{
@@ -103,7 +82,7 @@ bool push(Stack_t *s, char value)
 	return true;
 }
 
-char pop(Stack_t *s)
+int pop(Stack_t *s)
 {
 	if (s == NULL)
 	{
@@ -113,12 +92,12 @@ char pop(Stack_t *s)
 	oldTop = s->top;
 	s->top = s->top->nextPtr;
 	s->size -= 1;
-	char val = oldTop->data;
+	int val = oldTop->data;
 	free(oldTop);
 	return val;
 }
 
-char stackTop(Stack_t *s)
+int stackTop(Stack_t *s)
 {
 	if (s == NULL)
 	{
@@ -143,7 +122,7 @@ void printStack(StackNodePtr topPtr)
 	StackNode *current_node = topPtr;
 	printf("%c ", '[');
    	while ( current_node != NULL) {
-        printf("%c ", current_node->data);
+        printf("%d ", current_node->data);
         current_node = current_node->nextPtr;
     }
 	printf("%c", ']');
@@ -209,6 +188,7 @@ int precedence(char operator1, char operator2)
 		printf("%s", "Not an operator");
 		return 0;
 	}
+	return 0;
 }
 
 int calculate(int op1, int op2, char operator)
@@ -234,154 +214,247 @@ int calculate(int op1, int op2, char operator)
 
 void infixToPostfix(char infix_exp[], char postfix_exp[])
 {
+	
 	int i, j;
-	char item;
+	
 	char x;
 	Stack_t *stack = newStack();
+	
 	push(stack, '(');
-	strcat(infix_exp,")");
+	
+	strcat(infix_exp," )");
+	
+	const char s[4] = " ";
+    char* token;
+
+    // Use of strtok
+    // get first token
+	
+    token = strtok(infix_exp, s);
+	
 
 	i=0;
 	j=0;
-	item=infix_exp[i];
-
-	while(item != '\0')
+	
+	
+	while(token != NULL)
 	{
-		if(item == '(')
+		
+		
+		if(token[0] == '(')
 		{
-			push(stack, item);
+			push(stack, token[0]);
+			
 		}
-		else if( isdigit(item) || isalpha(item))
+		else if( isdigit(token[0]) || isalpha(token[0]))
 		{
-			postfix_exp[j] = item;              
-			j++;
+			
+			
+			postfix_exp[j] = ' ';
+			j++; 
+			for (int ii = 0; ii<strlen(token); ++ii)
+			{
+
+				postfix_exp[j] = token[ii];
+				             
+				j++;
+			}
+			
+			
 		}
-		else if(isOperator(item) == 1)       
+		else if(isOperator(token[0]) == 1)       
 		{
 			x=pop(stack);
-			while(isOperator(x) == 1 && (precedence(x, item)== 1 || precedence(x, item) == 0))
+			while(isOperator(x) == 1 && (precedence(x, token[0])== 1 || precedence(x, token[0]) == 0))
 			{
+				postfix_exp[j] = ' ';
+				j++;
 				postfix_exp[j] = x;                
 				j++;
 				x = pop(stack);                       
 			}
 			push(stack, x);
 
-			push(stack, item);
+			push(stack, token[0]);
 		}
-		else if(item == ')')       
+		else if(token[0] == ')')       
 		{
-			x = pop(stack);                   /* pop and keep popping until */
+			
+			x = pop(stack);
+			                   /* pop and keep popping until */
 			while(x != '(')                /* '(' encounterd */
 			{
-				postfix_exp[j] = x;
+				postfix_exp[j] = ' ';
 				j++;
+				postfix_exp[j] = x;
+				
+				j++;
+				
 				x = pop(stack);
 			}
+			
 		}
 		else
 		{ /* if current symbol is neither operand not '(' nor ')' and nor
 			operator */
+			
 			printf("\nInvalid infix Expression.\n");        /* the it is illegeal  symbol */
 			getchar();
 			exit(1);
 		}
 		i++;
 
-
-		item = infix_exp[i]; /* go to next symbol of infix expression */
+		
+		token = strtok(NULL, s); /* go to next symbol of infix expression */
+		
 	} /* while loop ends here */
+	
+	memmove(postfix_exp, postfix_exp+1, strlen(postfix_exp)); /*Remove trailing space.*/
 
-	postfix_exp[j] = '\0'; /* add sentinel else puts() fucntion */
+	postfix_exp[j - 1] = '\0'; /* add sentinel else puts() fucntion */
 	/* will print entire postfix[] array upto SIZE */
 
 }
 
-int evaluatePostfixExpression(PeepCompiler *compiler, char *expr)
+int evaluatePostfixExpression(struct pCompiler *compiler, char *expr)
 {
     Stack_t *stack = newStack();
     
- 
-    // See if stack was created successfully
+    const char s[4] = " ";
+    char* token;
+
+    // Use of strtok
+    // get first token
+    token = strtok(expr, s);
+
+	
+    // Check if stack was created successfully
     if (!stack) return -1;
  
     // Scan all characters one by one
-    for (int i = 0; i < strlen(expr); ++i)
+    while (token != NULL)
     {
+		
         // If the read character is an operand (number here), push it to the stack.
-        if (isdigit(expr[i]))
+        if (isdigit(token[0]))
         {
-			compiler->hml[compiler->datacount] = expr[i];
-            push(stack, compiler->datacount--);
-        }
-		// If the read character is a variabe, then push its location to the stack.
-		else if (isalpha(expr[i]))
-		{
-			if(lookUpSymbol(expr[i], compiler->symTab))
+			TableEntry entry;
+			if(lookUpSymbol(atoi(token), compiler))
 			{
-				TableEntry a = getSymbol(expr[i], compiler->symTab);
-				push(stack, a.location);
+				entry = getSymbol(atoi(token), compiler->symTab);
 			}
 			else
 			{
-				fprintf(stderr, "%s", "Undeclared variable!\n");
+				entry.location = compiler->datacount;
+				entry.symbol = atoi(token);
+				entry.type = 'C';
+				compiler->symTab[compiler->symSize++] = entry;
+            	compiler->hml[compiler->datacount--] = atoi(token);
+				printf("%d \n", entry.location);
 			}
+			
+			push(stack, entry.location);
+				
+        }
+		// If the read character is a variabe, then push its location to the stack.
+		else if (isalpha(token[0]))
+		{
+			TableEntry entry;
+			if(lookUpSymbol(token[0], compiler))
+			{
+				entry = getSymbol(token[0], compiler->symTab);
+				
+			}
+			else
+			{
+				entry.location = compiler->datacount--;
+				entry.symbol = token[0];
+				entry.type = 'V';
+				compiler->symTab[compiler->symSize++] = entry;
+            	
+			}
+			push(stack, entry.location);
 		} 
         // If the read character is an operator, pop two elements from stack apply the operator
         else
         {
-			if (i < 2)
+			if (stack->size < 2)
 			{
 				fprintf(stderr, "%s", "Invalid expression!\n");
 			}
-			
-            int val1 = pop(stack);
+			// printStack(stack->top);
+			// printMem(compiler->hml);
+			//printStack(stack->top);
             int val2 = pop(stack);
+            int val1 = pop(stack);
+			
+			
+			
+	   compiler->hml[compiler->inscount++] = LOAD * MEMSIZE + val1;
+			
+			
 
-			compiler->hml[compiler->inscount++] = LOAD * MEMSIZE + val1;
-
-
-            switch (expr[i])
+            switch (token[0])
             {
             case '+': 
-				compiler->hml[compiler->inscount++] = ADD * MEMSIZE + val2; 
+				compiler->hml[compiler->inscount++] = ADD * MEMSIZE + val2;
+				 
 				break;
             case '-': 
-				compiler->hml[compiler->inscount++] = SUB * MEMSIZE + val2; 
+				compiler->hml[compiler->inscount++] = SUB * MEMSIZE + val2;
+				 
 				break;
             case '*': 
 				compiler->hml[compiler->inscount++] = MUL * MEMSIZE + val2;
+				
+				
 				break;
             case '/': 
 				compiler->hml[compiler->inscount++] = DIV * MEMSIZE + val2;
+				
 				break;
 			default:
 				break;
             }
+			
 			compiler->hml[compiler->inscount++] = STOR * MEMSIZE + compiler->datacount;
+			
+			// TableEntry entry;
+			// entry.location = compiler->datacount;
+			// entry.symbol = result;
+			// entry.type = 'C';
+			// compiler->symTab[compiler->symSize++] = entry;
+			
 			push(stack, compiler->datacount--);
+			
         }
+		token = strtok(NULL, s);
     }
-
+	
 	if(stack->size != 1)
 	{
         fprintf(stderr, "%s", "Invalid expression!\n");
 	}
-
+	//printStack(stack->top);
     return pop(stack);
 }
 
-int main(int argc, char** argv)
-{
-	char in[12] = "(6+2)*5-8/4";
-	char post[10];
-	infixToPostfix(in, post);
-	for (int i = 0; i<10; ++i)
-	{
-		printf("%c ", post[i]);
-	}
-	printf("\n");
-    printf("Result: %d", evaluatePostfixExpression(post));
-	printf("\n");
-	return 0;
-}
+
+/*
+* Do not delete commented code below, it might be need to text infix-to-postfix or evaluate-expression.
+*/
+
+// int main(int argc, char** argv)
+// {
+// 	char in[50] = "( 66 + 2 ) * a - 8 / 4";
+// 	char post[50];
+// 	infixToPostfix(in, post);
+// 	for (int i = 0; i<strlen(post); ++i)
+// 	{
+// 		printf("%c", post[i]);
+// 	}
+	
+//     //printf("Result: %d", evaluatePostfixExpression(post));
+// 	printf("\n");
+// 	return 0;
+// }
