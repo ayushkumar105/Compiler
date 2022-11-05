@@ -6,7 +6,6 @@
 #include <ctype.h>
 #include "peepcc.h"
 
-
 #define ADD     0x10    // Add a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
 #define SUB     0x11    // Subtract a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
 #define MUL     0x12    // Multiple a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
@@ -654,5 +653,17 @@ void  firstPass(PeepCompiler *compiler, char *fileName)
 // }
 int main()
 {
-	return(0);
+	PeepCompiler comp;
+    initCompiler(&comp);
+    comp.file = "ex1.peep";
+    firstPass(&comp, comp.file);
+    secondPass(&comp);
+    writeToFile(&comp, "test.hml");
+    printf("The HML instructions have been written to a file called test.hml \n");
+    printf("Below is the HML memory layout!");
+    printMem(comp.hml);
+    printf("Below is the symbol table created during compilation!\n");
+    printSymTab(comp.symTab, comp.symSize);
+    return (0);
+	
 }
