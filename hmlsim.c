@@ -102,7 +102,7 @@ int check_error(short int* result, short int a, short b);
 int check_error_mult(short int a, short b);
 
 
-void sim(char file[])
+void sim(char file[], char* verbose)
 {
     PeepCompiler comp;
     initCompiler(&comp);
@@ -298,16 +298,19 @@ void sim(char file[])
         
     }
     
-    printf("\n");
-    printf("REGISTERS \n");
-    printf("ACC     %04hX \n", hatch.accumulator);
-    printf("InstCtr   %02hX \n", hatch.instructCntr);
-    printf("InstReg %04hX \n", hatch.instructReg);
-    printf("OpCode    %02hX \n", hatch.opCode);
-    printf("Operand   %02hX \n", hatch.operand);
-    printf("\n");
-    printf("MEMORY: \n");
-    printMem(hatch.mem);
+    if(strcmp(verbose, "") != 0)
+    {
+        printf("\n");
+        printf("REGISTERS \n");
+        printf("ACC     %04hX \n", hatch.accumulator);
+        printf("InstCtr   %02hX \n", hatch.instructCntr);
+        printf("InstReg %04hX \n", hatch.instructReg);
+        printf("OpCode    %02hX \n", hatch.opCode);
+        printf("Operand   %02hX \n", hatch.operand);
+        printf("\n");
+        printf("MEMORY: \n");
+        printMem(hatch.mem);
+    }
 }
 
 
@@ -317,12 +320,16 @@ void sim(char file[])
 int main(int argc, char** argv) {
     
     //If no file to read
-    if (argc != 2) {
+    if (argc < 2) {
         printf("Please enter a file name to execute hml code");
     }
     //If there is a file to read
-    else {
-        sim(argv[1]);
+    else if(argc == 3){
+        sim(argv[1], argv[2]);
+    }
+    else
+    {
+        sim(argv[1], "");
     }
     
     // return to calling environment
