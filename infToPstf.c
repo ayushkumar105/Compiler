@@ -41,13 +41,6 @@
 
 
 /*
-***********************************
-* Function declarations
-***********************************
-*/
-
-
-/*
 *************************************
 * Function Implementations
 *************************************
@@ -281,8 +274,8 @@ void infixToPostfix(char infix_exp[], char postfix_exp[])
 		{
 			
 			x = pop(stack);
-			                   /* pop and keep popping until */
-			while(x != '(')                /* '(' encounterd */
+			/* pop and keep popping until */
+			while(x != '(')   /* '(' encounterd */             
 			{
 				postfix_exp[j] = ' ';
 				j++;
@@ -375,16 +368,14 @@ int evaluatePostfixExpression(struct pCompiler *compiler, char *expr)
 			}
 			push(stack, entry.location);
 		} 
-        // If the read character is an operator, pop two elements from stack apply the operator
+        
         else
         {
 			if (stack->size < 2)
 			{
 				fprintf(stderr, "%s", "Invalid expression!\n");
 			}
-			// printStack(stack->top);
-			// printMem(compiler->hml);
-			//printStack(stack->top);
+			
             int val2 = pop(stack);
             int val1 = pop(stack);
 			
@@ -418,13 +409,6 @@ int evaluatePostfixExpression(struct pCompiler *compiler, char *expr)
             }
 			
 			compiler->hml[compiler->inscount++] = STOR * MEMSIZE + compiler->datacount;
-			
-			// TableEntry entry;
-			// entry.location = compiler->datacount;
-			// entry.symbol = result;
-			// entry.type = 'C';
-			// compiler->symTab[compiler->symSize++] = entry;
-			
 			push(stack, compiler->datacount--);
 			
         }
@@ -435,26 +419,6 @@ int evaluatePostfixExpression(struct pCompiler *compiler, char *expr)
 	{
         fprintf(stderr, "%s", "Invalid expression!\n");
 	}
-	//printStack(stack->top);
     return pop(stack);
 }
 
-
-/*
-* Do not delete commented code below, it might be need to text infix-to-postfix or evaluate-expression.
-*/
-
-// int main(int argc, char** argv)
-// {
-// 	char in[50] = "( 66 + 2 ) * a - 8 / 4";
-// 	char post[50];
-// 	infixToPostfix(in, post);
-// 	for (int i = 0; i<strlen(post); ++i)
-// 	{
-// 		printf("%c", post[i]);
-// 	}
-	
-//     //printf("Result: %d", evaluatePostfixExpression(post));
-// 	printf("\n");
-// 	return 0;
-// }

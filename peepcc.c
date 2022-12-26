@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
-#include "testi2p.h"
 #include "peepcc.h"
+
 
 #define ADD     0x10    // Add a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
 #define SUB     0x11    // Subtract a word from a specific location in memory to the word in the accumulator (leave the result in the accumulator)
@@ -40,10 +40,6 @@
 #define HALT    0XFF    // Halt, i.e. the program has completed its task
 
 
-/*
-*Method declarations
-*/
-
 
 /*
 *Method Implementations
@@ -57,8 +53,7 @@ void secondPass(PeepCompiler *compiler)
         {
             compiler->hml[i] = compiler->hml[i] + getSymbol(compiler->flag[i], compiler->symTab).location;
         }    
-    }
-    
+    }   
 }
 
 void writeToFile(PeepCompiler* compiler, char fileName[])
@@ -70,7 +65,6 @@ void writeToFile(PeepCompiler* compiler, char fileName[])
    {
         if(compiler->hml[i] != 0)
         {
-            // "%04hX "
             fprintf(fp, "%02hX %04hX\n", i, compiler->hml[i]);
         }
         
@@ -114,7 +108,7 @@ int letConverter(PeepCompiler *comp, char res, char expr[])
 int ifConverter(PeepCompiler *comp, char *var1, char *op, char *var2, int lineNumber)
 {
     TableEntry entry;
-    if(isdigit(var1[0]))
+    if(isdigit(var1[0]) || var1[0] == '-')
     {
         if (lookUpSymbol(atoi(var1), comp))
         {
@@ -148,7 +142,7 @@ int ifConverter(PeepCompiler *comp, char *var1, char *op, char *var2, int lineNu
         }
     }
     TableEntry entry2;
-    if(isdigit(var2[0]))
+    if(isdigit(var2[0]) || var2[0] == '-')
     {
         if (lookUpSymbol(atoi(var2), comp))
         {
@@ -287,21 +281,13 @@ int ifConverter(PeepCompiler *comp, char *var1, char *op, char *var2, int lineNu
             comp->flag[comp->inscount - 2] = lineNumber;
         }		
     }
-    
-    
-    
     return 0;
-    
-
-
-
 }
-
 
 void initCompiler(PeepCompiler *compiler)
 {
     TableEntry symbols[256];
-    unsigned short int hml[256] = {0};
+    short int hml[256] = {0};
     compiler->datacount = 255;
     compiler->hml = hml;
     compiler->inscount = 0;
@@ -314,7 +300,6 @@ void initCompiler(PeepCompiler *compiler)
     }
     compiler->memsize = 0;
 }
-
 
 bool lookUpSymbol(int symbol, PeepCompiler *comp)
 {
@@ -346,7 +331,6 @@ TableEntry getSymbol(int symbol, TableEntry *table)
     return entry;
 }
 
-
 void printSymTab(TableEntry* tab, int size)
 {
     printf("Symbol  Table  Location \n");
@@ -375,7 +359,7 @@ int gotoConverter(PeepCompiler *compiler, int lineNumber)
     int result[1];
     if(lookUpSymbol(lineNumber, compiler))
     {
-        printf("%d \n", lineNumber);
+        
         result[0] = B * MEMSIZE + getSymbol(lineNumber, compiler->symTab).location;
     }
     else
@@ -401,7 +385,6 @@ int printConverter(PeepCompiler *compiler, int var)
     return WRTE * MEMSIZE + symbol.location;
 }
 
-
 int inputConverter(PeepCompiler *compiler, int var)
 {
     
@@ -418,32 +401,6 @@ int inputConverter(PeepCompiler *compiler, int var)
     return READ * MEMSIZE + symbol.location;
 }
 
-
-void printMem(unsigned short int mem[256])
-{
-    printf("\n");
-    printf("      ");
-    for (short int i = 0; i < 16; ++i)
-    {
-        printf("%4hX ", i);
-    }
-    printf("\n");
-    printf("    0");
-    printf(" %04hX ", mem[0]);
-    short int j = 1;
-    for (int i = 1; i < 256; ++i)
-    {
-        if (i % 16 == 0)
-        {
-            printf("\n");
-            printf("%4hX0 ", j);
-            ++j;
-        }
-        printf("%04hX ", mem[i]);
-    }
-    printf("\n");
-}
-
 void generateInstructions(char *command, char vars[], PeepCompiler *compiler)
 {
     
@@ -457,10 +414,12 @@ void generateInstructions(char *command, char vars[], PeepCompiler *compiler)
     }
     else if(strcmp(command, "input") == 0)
     {
+        
         inputConverter(compiler, vars[0]);
     }
     else if(strcmp(command, "end") == 0)
     {
+        
         endConverter(compiler);
     }
     
@@ -570,10 +529,12 @@ void  firstPass(PeepCompiler *compiler, char *fileName)
         }
         else if (strcmp(command, "end") == 0)
         {
+           
             generateInstructions(command, "", compiler);
         }
         else if (strcmp(command, "goto") == 0)
         {
+            
             generateInstructions(command, token, compiler);
         }
         else if (strcmp(command, "if") == 0)
@@ -622,60 +583,7 @@ void  firstPass(PeepCompiler *compiler, char *fileName)
         
         
     }
+    compiler->hml[compiler->inscount++] = HALT * MEMSIZE + 0;
+    fclose(f);
 }
 
-// int main(int argc, char *argv[]){
-
-//     /*
-//     *Do not delete the commented code below. Might need it incase we need to read file from the terminal.
-//     */
-//     // FILE *fp;
-//     // char *filename;
-//     // Check if a filename has been specified in the command
-//     // if (argc < 2)
-//     // {
-//     //     printf("Missing Filename\n");
-//     //     //return(1);
-//     // }
-//     // else
-//     // {
-//     //     filename = argv[1];
-//     //     printf("Filename : %s\n", filename);
-//     // }
-//     // TableEntry entry;
-//     PeepCompiler compiler;
-//     initCompiler(&compiler);
-//     firstPass(&compiler, "myFile.peep");
-//     secondPass(&compiler);
-//     printMem(compiler.hml);
-//     printSymTab(compiler.symTab, compiler.symSize);
-//     writeToFile(&compiler, "test.peep");
-//     return(0);
-// }
-int main(int argc, char *argv[])
-{
-    PeepCompiler compiler;
-    initCompiler(&compiler);
-    char infix[50] = "( 6 + 2 ) * 5 - 8 / 4 \0";
-    char postfix[50];
-    infixToPostfix(infix, postfix);
-    printf("Infix given: %s \n", infix);
-    printf("Postfix: %s \n", postfix);
-    int result = evaluatePostfixExpression(&compiler, postfix);
-    printf("Evaluates to the address: %04xH", result);
-    PeepCompiler comp;
-    initCompiler(&comp);
-	char *filename;
-	filename = argv[1];
-    comp.file = filename;
-    firstPass(&comp, comp.file);
-    secondPass(&comp);
-    writeToFile(&comp, "test.hml");
-    printf("The HML instructions have been written to a file called test.hml \n");
-    printf("Below is the HML memory layout!");
-    printMem(comp.hml);
-    printf("Below is the symbol table created during compilation!\n");
-    printSymTab(comp.symTab, comp.symSize);
-    return (0);
-	
-}

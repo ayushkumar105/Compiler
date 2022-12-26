@@ -12,16 +12,13 @@ typedef StackNode *StackNodePtr;
 
 typedef struct {
     StackNodePtr top;  /* Linked list of elements */
-  /*
-      You will need to add more fields to this structure
-      to efficiently implement q_size and q_insert_tail
-    */
 	int size;
 } Stack_t;
+
 static const int MEMSIZE = 256;
+
 bool lookUpSymbol(int symbol, PeepCompiler *comp);
 TableEntry getSymbol(int symbol, TableEntry *table);
-
 int evaluatePostfixExpression(PeepCompiler *compiler, char *expr);
 void infixToPostfix(char infix_exp[], char postfix_exp[]);
 void convertToPostfix(char infix[], char postfix[]);

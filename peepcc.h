@@ -20,19 +20,16 @@ typedef struct tableEntry TableEntry;
 struct pCompiler {
     int memsize;
 	TableEntry *symTab;         /* the symbol table */
-	unsigned short int *hml;    /* the hml instructions */
-	int flag[256];                  /* the flag array */
+	short int *hml;             /* the hml instructions */
+	int flag[256];              /* the flag array */
 	char *file;                 /* name of file to be compiled*/
 	int ln;                     /* current line of file to be compiled */
 	int inscount;               /* instruction count for all the hml statements created */
 	int datacount;              /* data count to keep track for space in the hml memory*/
-	int symSize;				/*Symbol table size tracker*/
+	int symSize;				/* Symbol table size tracker*/
 };
 
-
 typedef struct pCompiler PeepCompiler;
-
-
 
 void initCompiler(PeepCompiler *compiler);
 void firstPass(PeepCompiler *compiler, char file[]);
@@ -45,6 +42,5 @@ int printConverter(PeepCompiler *comp, int var);
 int gotoConverter(PeepCompiler *comp, int lineNumber);
 int endConverter(PeepCompiler *compiler);
 int inputConverter(PeepCompiler *comp, int var);
-void printMem(unsigned short int mem[256]);
 void printSymTab(TableEntry* tab, int size);
 #endif
