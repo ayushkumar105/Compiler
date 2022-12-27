@@ -21,10 +21,10 @@ Here's how:
 
 6. Type `./peepcc ex1.peep`
 
-This will run a program written in the Peep programming language that takes an interger n as the input and prints out the sum from 1 to n. There are two other example files written in the Peep programming language that can be run. The second example file, called ex2.peep, takes in two intergers from the terminal and prints out the larger of the two integers. The third example file, called ex3.peep, takes an input and prints out its square and then it repeats this process until the user inputs -9999. These examples can be run using the command `./peepcc FILENAME.peep`, replace `FILENAME` with the file you want to run. You can also write your own Peep program in a file with the extension `.peep` and run it with the same command mentioned above. Below is a detalied description of the Peep programming language.  
+To run a program written in the Peep programming language, use the command ./peepcc FILENAME.peep, replacing FILENAME with the name of the file you want to run. The first example file, called ex1.peep, takes an integer n as input and prints the sum of the numbers from 1 to n. The second example file, called ex2.peep, takes two integers as input and prints the larger of the two. The third example file, called ex3.peep, takes an input and repeatedly prints its square until the user inputs -9999. You can also write your own Peep programs and run them with this same command. More information about the Peep programming language can be found below. 
     
 ## Introduction
-This compiler (Peep Compiler) is a simple, yet powerful tool for converting source code written in Peep programming language into Hatching machine code and the Hatchling machine code's execution can be simulated in C.
+The Peep Compiler is a simple yet powerful tool for converting source code written in the Peep programming language into machine code that can be run on a Hatchling machine. The compiled code can be simulated using C, allowing you to test and debug your programs.
 
 ## The Peep Programming Language
 ### Commands
