@@ -106,6 +106,9 @@ Peep does not provide a repetition structure (such as C’s `for`, `while` or `d
 99 end
 ```
 
+Credits:
+    
+Based on a design by Deitel.
 
 
 
