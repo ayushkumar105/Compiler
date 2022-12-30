@@ -1,5 +1,9 @@
 # The Peep Compiler For Hatchling Machine Language
 
+## Introduction
+The Peep Compiler is a simple yet powerful tool for converting source code written in the Peep programming language into machine code that can be run on a Hatchling machine. The Hatchling machine is simulated using C, allowing you to test and debug your programs.
+
+
 ## Getting Started
 To get started with the compiler, you'll need to clone the repository to your local machine.
 
@@ -23,8 +27,6 @@ Here's how:
 
 To run a program written in the Peep programming language, use the command ./peepcc FILENAME.peep, replacing FILENAME with the name of the file you want to run. The first example file, called ex1.peep, takes an integer n as input and prints the sum of the numbers from 1 to n. The second example file, called ex2.peep, takes two integers as input and prints the larger of the two. The third example file, called ex3.peep, takes an input and repeatedly prints its square until the user inputs -9999. You can also write your own Peep programs and run them with this same command. More information about the Peep programming language can be found below. 
     
-## Introduction
-The Peep Compiler is a simple yet powerful tool for converting source code written in the Peep programming language into machine code that can be run on a Hatchling machine. The compiled code can be simulated using C, allowing you to test and debug your programs.
 
 ## The Peep Programming Language
 ### Commands
